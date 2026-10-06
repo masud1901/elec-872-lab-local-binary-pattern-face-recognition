@@ -1,10 +1,3 @@
-% ---------------------------------------------------------------------------
-% Making a face recogniser work under different lighting and rotation
-% ELEC 872 - Lab (workshop, Oct 6)
-%
-% Overleaf: create a new project and paste this file (or upload it).
-% Compiles as-is (only needs booktabs).
-% ---------------------------------------------------------------------------
 \documentclass[11pt]{article}
 
 \usepackage[margin=1in]{geometry}
@@ -14,7 +7,7 @@
 \captionsetup{font=small, labelfont=bf}
 
 \title{Making a Face Recogniser Work\\ Under Different Lighting and Rotation}
-\author{ELEC 872 --- Lab}
+\author{Md Akmol Masud}
 \date{October 6, 2026}
 
 \begin{document}
@@ -23,64 +16,26 @@
 % ---------------------------------------------------------------------------
 \section{What the recogniser does}
 
-A face photo is a grid of tiny squares called pixels, each with a brightness from
-black to white. For every pixel, the recogniser looks at the eight pixels around it
-and asks one simple question about each of them: is this neighbour brighter or darker
-than me? A brighter neighbour becomes a 1, a darker one a 0. The eight answers form a
-short code, like \texttt{10110010}, which is a little signature of that spot: an edge,
-a line, or a flat area. The face is then divided into a grid of small windows, and in
-each window the recogniser counts how often every signature appears. All those counts
-together form a fingerprint of the face. To identify a person, the new fingerprint is
-compared with the stored ones and the closest match wins. On ordinary photos this
-works very well, recognising about 97.5\% of the faces correctly.
+A face photo is a grid of pixels, each with a brightness from black to white. For every pixel, the recogniser looks at the eight pixels around it and asks, is this neighbour brighter or darker than me? A brighter neighbour becomes a 1, a darker one a 0. The eight answers form a short code, like \texttt{10110010}, which is a little signature of that spot: an edge, a line, or a flat area. The face is then divided into a grid of small windows, and in each window the recogniser counts how often every signature appears. All those counts together form a fingerprint of the face. To identify a person, the new fingerprint is compared with stored ones, and the closest match is selected. On ordinary photos, this works very well, recognising about 97.5\% of the faces correctly.
 
 % ---------------------------------------------------------------------------
 \section{The two problems}
 
-Two everyday changes confuse this method. If one side of the face is much brighter
-than the other, the ``brighter or darker than me?'' answer flips on the darker side, so
-the signatures change and the accuracy falls to about 70\%. If the face is turned, the
-little circle of eight neighbours turns with it, the digits of each signature shift
-around, and at a 20-degree turn the accuracy drops to about 63\%. The rest of this note
-is about the two fixes.
+If one side of the face is much brighter than the other, the signatures change and the accuracy falls to about 70\%. If the face is turned, the little circle of eight neighbours turns with it, the digits of each signature shift, and at a 20-degree turn, the accuracy drops to about 63\%.
 
 % ---------------------------------------------------------------------------
 \section{Fix 1: evening out the lighting}
 
-The key idea is to remove the lighting \emph{before} the signatures are built, so the
-signatures never see the bright-to-dark glow in the first place. The lighting across a
-face is smooth and slowly changing, while the face itself has fine detail. So the
-recogniser makes a \emph{blurry} copy of the photo, which keeps only the smooth glow
-and loses the fine detail, and then divides the original photo by that blurry copy.
-The smooth glow is the same in both, so it cancels out, while the fine face detail
-survives the division. What is left is the face as if it had been lit perfectly evenly,
-and only then are the signatures and the fingerprint computed.
+The key idea is to remove the lighting \emph{before} the signatures are built, so the signatures never see the bright-to-dark glow in the first place. The lighting across a face is smooth and slowly changing, while the face itself has fine detail. So the recogniser makes a \emph{blurry} copy of the photo, which keeps only the smooth glow and loses the fine detail, and then divides the original photo by that blurry copy. The smooth glow is the same in both, so it cancels out, while the fine face detail survives the division. What remains is the face, as if it had been lit perfectly evenly, and only then are the signatures and the fingerprint computed.
 
-This is the same trick a phone camera uses for automatic brightness correction, except
-here it is applied to every part of the face separately, so a bright left side and a
-dark right side both come out evenly lit. The only setting is how blurry the copy
-should be (a blur width of about eight pixels), which is small enough to leave the eyes,
-nose and mouth sharp but large enough to catch the lighting. Because this step only
-removes smooth brightness, it does nothing to a normal, evenly lit photo, so the
-accuracy on easy photos is not affected. This fix brings the strongly lit case back up
-to about 97.5\%.
+nose and mouth sharp but large enough to catch the lighting. Because this step only removes smooth brightness, it does nothing to a normal, evenly lit photo, so the accuracy on easy photos is not affected. This fix brings the strongly lit case back up to about 97.5\%.
 
 % ---------------------------------------------------------------------------
 \section{Fix 2: turning the faces while learning them}
 
-Here the idea is to prepare for rotation when the faces are first stored. The
-recogniser does not only keep the straight-on photo of each known person; it also keeps
-several copies turned a little, one every five degrees from thirty degrees left to
-thirty degrees right. Each copy is just another fingerprint in the database for the
-same person. When a turned photo then arrives, it does not have to match a straight-on
-template: it can match the turned copy that lines up with it, and so it is still
-recognised as the right person.
+Here, the idea is to prepare for rotation when the faces are first stored. The recogniser not only keeps the straight-on photo of each known person; it also keeps several copies turned a little, one every five degrees from thirty degrees left to thirty degrees right. Each copy is just another fingerprint in the database for the same person. When a turned photo then arrives, it does not have to match a straight-on template: it can match the turned copy that lines up with it, and so it is still recognised as the right person.
 
-This works like keeping a few passport photos of a friend, one facing straight, one
-turned slightly left and one turned slightly right. Whichever way the friend is looking,
-one of the photos still looks like them. Turning the stored faces is cheap and is done
-once, ahead of time, and it does not change the straight-on photos at all, so normal
-recognition is untouched. This fix brings the 20-degree case back up to about 98\%.
+This works like keeping a few passport photos of a friend, one facing straight, one turned slightly left, and one turned slightly right. Whichever way the friend is looking, one of the photos still looks like them. Turning the stored faces is cheap, done once ahead of time, and it does not change the straight-on photos at all, so normal recognition is untouched. This fix brings the 20-degree case back up to about 98\%.
 
 % ---------------------------------------------------------------------------
 \section{The result}
@@ -120,11 +75,4 @@ recognition is untouched. This fix brings the 20-degree case back up to about 98
            (right).}
   \label{fig:terminal}
 \end{figure}
-
-In short, two simple ideas fix the two problems. The lighting fix divides out the
-smooth light so it does not fool the ``brighter or darker'' test, and the rotation fix
-keeps a few turned copies of each known face so a turned photo still matches. Accuracy
-on normal photos does not change, while the hard cases become almost as good as the
-easy ones.
-
 \end{document}
