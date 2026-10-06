@@ -1,0 +1,99 @@
+% ---------------------------------------------------------------------------
+% Baseline results and today's experiment
+% ELEC 872 - Lab (workshop, Oct 6)
+%
+% Overleaf: create a new project and paste this file (or upload it).
+% Compiles as-is (only needs booktabs).
+% ---------------------------------------------------------------------------
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+\title{Baseline: LBP Face Recognition under\\ Lighting Changes and Rotation}
+\author{ELEC 872 --- Lab}
+\date{October 6, 2026}
+
+\begin{document}
+\maketitle
+
+% ---------------------------------------------------------------------------
+\section{Baseline results}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Baseline rank-1 recognition rate on ORL for each test condition.}
+  \label{tab:baseline}
+  \begin{tabular}{lr}
+    \toprule
+    Test condition & Rank-1 accuracy \\
+    \midrule
+    Normal                          & 0.975 \\
+    \midrule
+    Uniform brightness              & 0.975 \\
+    \midrule
+    Lighting ramp $s = 0.2$         & 0.960 \\
+    Lighting ramp $s = 0.4$         & 0.945 \\
+    Lighting ramp $s = 0.6$         & 0.895 \\
+    Lighting ramp $s = 0.8$         & \textbf{0.705} \\
+    Lighting ramp $s = 1.0$         & 0.335 \\
+    \midrule
+    Rotation $5^\circ$              & 0.970 \\
+    Rotation $10^\circ$             & 0.925 \\
+    Rotation $15^\circ$             & 0.800 \\
+    Rotation $20^\circ$             & \textbf{0.630} \\
+    Rotation $25^\circ$             & 0.510 \\
+    Rotation $30^\circ$             & 0.340 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\section{What we are seeing}
+
+\begin{itemize}
+  \item \textbf{Normal photos are easy.} The baseline reaches 0.975 on unchanged
+        images, matching the $\approx0.98$ reported for this method.
+  \item \textbf{A global brightness change costs nothing.} Uniform brightness also
+        scores 0.975. LBP compares each pixel only with its neighbours, so an overall
+        brightness offset cancels out.
+  \item \textbf{One-side lighting breaks it.} As the lighting ramp gets stronger the
+        accuracy falls steadily, from 0.960 at $s=0.2$ down to \textbf{0.705} at
+        $s=0.8$ and 0.335 at $s=1.0$. A smooth brightness \emph{gradient} across the
+        face flips the ``brighter/darker than the centre'' comparison on the darker
+        side, so the LBP codes themselves change.
+  \item \textbf{Rotation breaks it.} Accuracy falls with the angle, from 0.970 at
+        $5^\circ$ to \textbf{0.630} at $20^\circ$ and 0.340 at $30^\circ$. Rotating the
+        face rotates the sampling ring around each pixel, which cyclically shifts the
+        LBP bit pattern, so the same texture lands in different histogram bins and
+        windows.
+\end{itemize}
+
+In short, the baseline is accurate on normal photos but fragile to exactly the two
+nuisance factors we care about: a lighting gradient and in-plane rotation.
+
+% ---------------------------------------------------------------------------
+\section{The experiment today}
+
+Starting from this baseline, the goal is to make the accuracy \emph{stay high} under
+the change conditions without losing accuracy on normal photos.
+
+\begin{enumerate}
+  \item \textbf{Lighting:} normalise the illumination before the LBP step. Because a
+        one-side light is a smooth multiplicative field, dividing the image by its own
+        Gaussian-blurred copy (flat-field correction) cancels it while keeping the
+        local face texture LBP encodes.
+  \item \textbf{Rotation:} make the descriptor tolerant to rotation. One option is a
+        rotation-invariant LBP code (take the minimum over the cyclic shifts of the
+        code); another is to augment the gallery at enrolment with rotated copies of
+        each image so a rotated probe finds a correctly oriented template.
+\end{enumerate}
+
+Both variants are evaluated with the \emph{same} split and the \emph{same} conditions
+as the baseline above, and compared directly. The experiment succeeds if the rates for
+strong one-side lighting and for rotation rise clearly, while the normal-photo rate
+stays at its baseline value.
+
+\end{document}
