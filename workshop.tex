@@ -1,0 +1,88 @@
+% ---------------------------------------------------------------------------
+% How the face recogniser was made robust to lighting and rotation
+% ELEC 872 - Lab (workshop, Oct 6)
+%
+% Overleaf: create a new project and paste this file (or upload it).
+% Compiles as-is (only needs booktabs).
+% ---------------------------------------------------------------------------
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+\title{Making a Face Recogniser Work\\ Under Different Lighting and Rotation}
+\author{ELEC 872 --- Lab}
+\date{October 6, 2026}
+
+\begin{document}
+\maketitle
+
+% ---------------------------------------------------------------------------
+\section{What the recogniser does}
+
+A face photo is a grid of tiny squares called pixels, each with a brightness from
+black to white. For every pixel, the recogniser looks at the eight pixels around it
+and asks one simple question about each of them: is this neighbour brighter or darker
+than me? A brighter neighbour becomes a 1, a darker one a 0. The eight answers form a
+short code, like \texttt{10110010}, which is a little signature of that spot: an edge,
+a line, or a flat area. The face is then divided into a grid of small windows, and in
+each window the recogniser counts how often every signature appears. All those counts
+together form a fingerprint of the face. To identify a person, the new fingerprint is
+compared with the stored ones and the closest match wins. On ordinary photos this
+works very well, recognising about 97.5\% of the faces correctly.
+
+% ---------------------------------------------------------------------------
+\section{Why lighting changes break it}
+
+If one side of the face is much brighter than the other, the ``brighter or darker than
+me?'' answer flips on the darker side, so the signatures change. It is like reading a
+page with a lamp shining on one side: the words are the same, but they look different.
+The fingerprint changes even though the person has not, and the accuracy falls to about
+70\%. To fix this, we even out the lighting before building the signatures. The
+recogniser makes a blurry copy of the photo, which captures the smooth bright-to-dark
+glow rather than the face details, and then divides the photo by that blurry copy. The
+lighting cancels out and the face texture stays. It works like a phone camera's
+automatic brightness correction, but applied to every part of the face so the whole
+face looks evenly lit. This brings the accuracy back up to about 97.5\%.
+
+% ---------------------------------------------------------------------------
+\section{Why rotation breaks it}
+
+When the face is turned, the little circle of eight neighbours around each pixel turns
+with it. The same signature now has its digits shifted around, like spinning a
+combination lock, so the recogniser reads it as a different code even though it is the
+same spot on the same face. At a 20-degree turn the accuracy drops to about 63\%. To
+fix this, when the recogniser learns a face it stores not only the straight-on photo
+but also copies turned a little, for example every five degrees from minus thirty to
+plus thirty. When a turned photo arrives, it can then match a turned copy of the right
+person. It is like keeping passport photos of a friend facing straight, slightly left
+and slightly right, so you still recognise them whichever way they are looking. This
+raises the accuracy to about 98\%.
+
+% ---------------------------------------------------------------------------
+\section{The result}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Recognition accuracy before and after the two changes.}
+  \label{tab:result}
+  \begin{tabular}{lrr}
+    \toprule
+    Situation & Before & After \\
+    \midrule
+    Normal photo              & 97.5\% & 97.5\% \\
+    One side lit strongly     & 70.5\% & 97.5\% \\
+    Turned by 20 degrees      & 63.0\% & 98.0\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+In short, two simple ideas fix the two problems. The lighting fix divides out the
+smooth light so it does not fool the ``brighter or darker'' test, and the rotation fix
+keeps a few turned copies of each known face so a turned photo still matches. Accuracy
+on normal photos does not change, while the hard cases become almost as good as the
+easy ones.
+
+\end{document}
