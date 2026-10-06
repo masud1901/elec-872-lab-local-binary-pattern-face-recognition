@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Datasets (not redistributed with the code; see README / lbpface/datasets.py)
+data/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/

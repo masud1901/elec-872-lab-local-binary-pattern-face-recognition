@@ -1,0 +1,205 @@
+{
+  "config": {
+    "aug_angles": [
+      -30,
+      -25,
+      -20,
+      -15,
+      -10,
+      -5,
+      0,
+      5,
+      10,
+      15,
+      20,
+      25,
+      30
+    ],
+    "data": "ORL",
+    "lighting_strengths": [
+      0.2,
+      0.4,
+      0.6,
+      0.8,
+      1.0
+    ],
+    "methods": {
+      "baseline": {
+        "P": 16,
+        "R": 2.0,
+        "anchor": "center",
+        "aug_angles": [],
+        "border": "edge",
+        "grid": null,
+        "illum_sigma": null,
+        "rotation_invariant": false,
+        "window": [
+          30,
+          37
+        ]
+      },
+      "improved": {
+        "P": 16,
+        "R": 2.0,
+        "anchor": "center",
+        "aug_angles": [
+          -30,
+          -25,
+          -20,
+          -15,
+          -10,
+          -5,
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30
+        ],
+        "border": "edge",
+        "grid": null,
+        "illum_sigma": 8.0,
+        "rotation_invariant": false,
+        "window": [
+          30,
+          37
+        ]
+      },
+      "lighting norm": {
+        "P": 16,
+        "R": 2.0,
+        "anchor": "center",
+        "aug_angles": [],
+        "border": "edge",
+        "grid": null,
+        "illum_sigma": 8.0,
+        "rotation_invariant": false,
+        "window": [
+          30,
+          37
+        ]
+      },
+      "rotation aug": {
+        "P": 16,
+        "R": 2.0,
+        "anchor": "center",
+        "aug_angles": [
+          -30,
+          -25,
+          -20,
+          -15,
+          -10,
+          -5,
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30
+        ],
+        "border": "edge",
+        "grid": null,
+        "illum_sigma": null,
+        "rotation_invariant": false,
+        "window": [
+          30,
+          37
+        ]
+      }
+    },
+    "rotation_angles": [
+      5,
+      10,
+      15,
+      20,
+      25,
+      30
+    ],
+    "seed": 0,
+    "split": "images 1-5 gallery / 6-10 probe"
+  },
+  "experiment": "robustness",
+  "meta": {
+    "code_fingerprint": "c2069b9fb4b1d15dd4c2e42df92d57a8436ac1076c8b1897982d3509ab12beee",
+    "dataset_fingerprint": "9972801133ec8ba8b06221a0f2c7c087c2e2a8d99a5fdd0ddfbf90beb82d5ac3",
+    "environment": {
+      "machine": "x86_64",
+      "numpy": "2.4.4",
+      "pillow": "12.2.0",
+      "platform": "Linux-6.18.40.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "python": "3.14.4",
+      "scipy": "1.17.1",
+      "threads_env": {
+        "MKL_NUM_THREADS": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null
+      }
+    },
+    "timestamp_utc": "2026-10-06T16:36:12+00:00"
+  },
+  "result_digest": "4e11d0f36552e6ebebe0437ab4d5508992d10d79823a246b3e20960dc3e3b307",
+  "results": {
+    "baseline": {
+      "lighting 0.2": 0.96,
+      "lighting 0.4": 0.945,
+      "lighting 0.6": 0.895,
+      "lighting 0.8": 0.705,
+      "lighting 1": 0.335,
+      "normal": 0.975,
+      "rotation 10": 0.925,
+      "rotation 15": 0.8,
+      "rotation 20": 0.63,
+      "rotation 25": 0.51,
+      "rotation 30": 0.34,
+      "rotation 5": 0.97,
+      "uniform": 0.975
+    },
+    "improved": {
+      "lighting 0.2": 0.975,
+      "lighting 0.4": 0.97,
+      "lighting 0.6": 0.985,
+      "lighting 0.8": 0.975,
+      "lighting 1": 0.905,
+      "normal": 0.975,
+      "rotation 10": 0.99,
+      "rotation 15": 0.98,
+      "rotation 20": 0.98,
+      "rotation 25": 0.96,
+      "rotation 30": 0.965,
+      "rotation 5": 0.985,
+      "uniform": 0.975
+    },
+    "lighting norm": {
+      "lighting 0.2": 0.975,
+      "lighting 0.4": 0.97,
+      "lighting 0.6": 0.98,
+      "lighting 0.8": 0.97,
+      "lighting 1": 0.905,
+      "normal": 0.975,
+      "rotation 10": 0.925,
+      "rotation 15": 0.79,
+      "rotation 20": 0.62,
+      "rotation 25": 0.47,
+      "rotation 30": 0.325,
+      "rotation 5": 0.95,
+      "uniform": 0.975
+    },
+    "rotation aug": {
+      "lighting 0.2": 0.96,
+      "lighting 0.4": 0.94,
+      "lighting 0.6": 0.87,
+      "lighting 0.8": 0.68,
+      "lighting 1": 0.24,
+      "normal": 0.975,
+      "rotation 10": 0.995,
+      "rotation 15": 0.98,
+      "rotation 20": 0.98,
+      "rotation 25": 0.98,
+      "rotation 30": 0.985,
+      "rotation 5": 0.995,
+      "uniform": 0.975
+    }
+  }
+}

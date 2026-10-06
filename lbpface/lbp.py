@@ -125,6 +125,36 @@ def lbp_codes(image: np.ndarray, P: int = 8, R: float = 1.0, border: str = "edge
 
 
 # --------------------------------------------------------------------------- #
+# rotation-invariant codes (workshop extension)
+# --------------------------------------------------------------------------- #
+def rotation_invariant_codes(codes: np.ndarray, P: int) -> np.ndarray:
+    """Minimum over the P circular shifts of every P-bit code.
+
+    Rotating a face by a multiple of ``360/P`` degrees rotates the sampling ring,
+    which cyclically shifts the LBP code.  Taking the smallest shift removes that
+    shift, so a face and a rotated copy of it produce the *same* code.  This is what
+    makes the descriptor robust to in-plane rotation.  Non-integer rotations are not
+    exactly a cyclic shift, but they are close enough for the minimum-shift code to
+    stay stable.
+    """
+    codes = np.asarray(codes, dtype=np.int64)
+    if not (2 <= P <= MAX_P):
+        raise ValueError(f"P must be in [2, {MAX_P}]")
+    mask = (1 << P) - 1
+    out = codes.copy()
+    c = codes
+    for _ in range(P - 1):
+        c = ((c << 1) | (c >> (P - 1))) & mask
+        out = np.minimum(out, c)
+    return out
+
+
+def lbp_codes_ri(image: np.ndarray, P: int = 8, R: float = 1.0, border: str = "edge") -> np.ndarray:
+    """Rotation-invariant ``LBP_{P,R}`` code of every pixel (minimum circular shift)."""
+    return rotation_invariant_codes(lbp_codes(image, P, R, border), P)
+
+
+# --------------------------------------------------------------------------- #
 # uniform patterns
 # --------------------------------------------------------------------------- #
 def n_uniform_patterns(P: int) -> int:
@@ -173,7 +203,15 @@ def uniform_mapping(P: int) -> np.ndarray:
     return table
 
 
-def lbp_u2(image: np.ndarray, P: int = 8, R: float = 1.0, border: str = "edge") -> np.ndarray:
-    """LBP^{u2}_{P,R} label image (labels in ``[0, n_labels(P))``), same shape as ``image``."""
+def lbp_u2(image: np.ndarray, P: int = 8, R: float = 1.0, border: str = "edge",
+           rotation_invariant: bool = False) -> np.ndarray:
+    """LBP^{u2}_{P,R} label image (labels in ``[0, n_labels(P))``), same shape as ``image``.
+
+    With ``rotation_invariant=True`` the code of every pixel is first reduced to its
+    minimum circular shift (see :func:`rotation_invariant_codes`) before the uniform
+    mapping.  A uniform pattern then labels its whole rotation orbit with one value.
+    """
+    if rotation_invariant:
+        return uniform_mapping(P)[lbp_codes_ri(image, P, R, border)]
     return uniform_mapping(P)[lbp_codes(image, P, R, border)]
 

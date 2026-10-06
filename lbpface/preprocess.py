@@ -102,3 +102,32 @@ def preprocess_face(image: np.ndarray, left_eye: Point, right_eye: Point,
         mask = elliptical_mask(out_shape)
     return equalise_masked(reg, mask)
 
+
+# --------------------------------------------------------------------------- #
+# illumination normalisation (workshop extension)
+# --------------------------------------------------------------------------- #
+def normalize_illumination(image: np.ndarray, sigma: float = 15.0,
+                           target_mean: float = 128.0, eps: float = 1.0) -> np.ndarray:
+    """Remove a smooth lighting gradient by dividing out a blurred copy of the image.
+
+    A one-side lighting change is (to first order) a smooth multiplicative field
+    ``L(x)``: ``observed = L * face``.  Gaussian-blurring the observed image gives
+    approximately ``L * blur(face)``.  Dividing the image by that blurred copy -
+    flat-field / single-scale-Retinex correction - therefore cancels ``L`` and leaves
+    the face texture, which is what LBP actually encodes.  Unlike a Difference of
+    Gaussians this keeps the low-frequency *face* structure (eye sockets, nose shadow),
+    so it helps under a lighting ramp without hurting normal photos.
+
+    Returns float64 of the same shape; ``sigma`` is in pixels. The result is rescaled so
+    its mean over the image is ``target_mean`` (keeps LBP thresholds in a sane range).
+    """
+    img = np.asarray(image, dtype=np.float64)
+    if sigma <= 0:
+        raise ValueError("sigma must be positive")
+    field = ndimage.gaussian_filter(img, sigma=sigma)
+    out = img / (field + eps)
+    mean = out.mean()
+    if mean > 0:
+        out = out * (target_mean / mean)
+    return out
+

@@ -96,6 +96,7 @@ class LBPDescriptor:
     window: Optional[Tuple[int, int]] = None
     border: str = "edge"
     anchor: str = "center"
+    rotation_invariant: bool = False
 
     def __post_init__(self):
         if (self.grid is None) == (self.window is None):
@@ -126,7 +127,7 @@ class LBPDescriptor:
         return self.n_regions(shape) * self.n_bins
 
     def label_image(self, image: np.ndarray) -> np.ndarray:
-        return lbp_u2(image, self.P, self.R, self.border)
+        return lbp_u2(image, self.P, self.R, self.border, self.rotation_invariant)
 
     def transform_one(self, image: np.ndarray) -> np.ndarray:
         return spatial_histogram(self.label_image(image), self.n_bins, self.grid, self.window, self.anchor)
@@ -140,7 +141,8 @@ class LBPDescriptor:
 
     def describe(self) -> dict:
         return {"P": self.P, "R": self.R, "grid": self.grid, "window": self.window,
-                "border": self.border, "anchor": self.anchor}
+                "border": self.border, "anchor": self.anchor,
+                "rotation_invariant": self.rotation_invariant}
 
 
 def uniform_fraction(images: Sequence[np.ndarray], P: int, R: float, border: str = "edge") -> float:
