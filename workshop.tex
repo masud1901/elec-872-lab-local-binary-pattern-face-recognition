@@ -34,32 +34,52 @@ compared with the stored ones and the closest match wins. On ordinary photos thi
 works very well, recognising about 97.5\% of the faces correctly.
 
 % ---------------------------------------------------------------------------
-\section{Why lighting changes break it}
+\section{The two problems}
 
-If one side of the face is much brighter than the other, the ``brighter or darker than
-me?'' answer flips on the darker side, so the signatures change. It is like reading a
-page with a lamp shining on one side: the words are the same, but they look different.
-The fingerprint changes even though the person has not, and the accuracy falls to about
-70\%. To fix this, we even out the lighting before building the signatures. The
-recogniser makes a blurry copy of the photo, which captures the smooth bright-to-dark
-glow rather than the face details, and then divides the photo by that blurry copy. The
-lighting cancels out and the face texture stays. It works like a phone camera's
-automatic brightness correction, but applied to every part of the face so the whole
-face looks evenly lit. This brings the accuracy back up to about 97.5\%.
+Two everyday changes confuse this method. If one side of the face is much brighter
+than the other, the ``brighter or darker than me?'' answer flips on the darker side, so
+the signatures change and the accuracy falls to about 70\%. If the face is turned, the
+little circle of eight neighbours turns with it, the digits of each signature shift
+around, and at a 20-degree turn the accuracy drops to about 63\%. The rest of this note
+is about the two fixes.
 
 % ---------------------------------------------------------------------------
-\section{Why rotation breaks it}
+\section{Fix 1: evening out the lighting}
 
-When the face is turned, the little circle of eight neighbours around each pixel turns
-with it. The same signature now has its digits shifted around, like spinning a
-combination lock, so the recogniser reads it as a different code even though it is the
-same spot on the same face. At a 20-degree turn the accuracy drops to about 63\%. To
-fix this, when the recogniser learns a face it stores not only the straight-on photo
-but also copies turned a little, for example every five degrees from minus thirty to
-plus thirty. When a turned photo arrives, it can then match a turned copy of the right
-person. It is like keeping passport photos of a friend facing straight, slightly left
-and slightly right, so you still recognise them whichever way they are looking. This
-raises the accuracy to about 98\%.
+The key idea is to remove the lighting \emph{before} the signatures are built, so the
+signatures never see the bright-to-dark glow in the first place. The lighting across a
+face is smooth and slowly changing, while the face itself has fine detail. So the
+recogniser makes a \emph{blurry} copy of the photo, which keeps only the smooth glow
+and loses the fine detail, and then divides the original photo by that blurry copy.
+The smooth glow is the same in both, so it cancels out, while the fine face detail
+survives the division. What is left is the face as if it had been lit perfectly evenly,
+and only then are the signatures and the fingerprint computed.
+
+This is the same trick a phone camera uses for automatic brightness correction, except
+here it is applied to every part of the face separately, so a bright left side and a
+dark right side both come out evenly lit. The only setting is how blurry the copy
+should be (a blur width of about eight pixels), which is small enough to leave the eyes,
+nose and mouth sharp but large enough to catch the lighting. Because this step only
+removes smooth brightness, it does nothing to a normal, evenly lit photo, so the
+accuracy on easy photos is not affected. This fix brings the strongly lit case back up
+to about 97.5\%.
+
+% ---------------------------------------------------------------------------
+\section{Fix 2: turning the faces while learning them}
+
+Here the idea is to prepare for rotation when the faces are first stored. The
+recogniser does not only keep the straight-on photo of each known person; it also keeps
+several copies turned a little, one every five degrees from thirty degrees left to
+thirty degrees right. Each copy is just another fingerprint in the database for the
+same person. When a turned photo then arrives, it does not have to match a straight-on
+template: it can match the turned copy that lines up with it, and so it is still
+recognised as the right person.
+
+This works like keeping a few passport photos of a friend, one facing straight, one
+turned slightly left and one turned slightly right. Whichever way the friend is looking,
+one of the photos still looks like them. Turning the stored faces is cheap and is done
+once, ahead of time, and it does not change the straight-on photos at all, so normal
+recognition is untouched. This fix brings the 20-degree case back up to about 98\%.
 
 % ---------------------------------------------------------------------------
 \section{The result}
