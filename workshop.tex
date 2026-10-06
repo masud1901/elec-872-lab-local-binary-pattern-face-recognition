@@ -9,6 +9,7 @@
 
 \usepackage[margin=1in]{geometry}
 \usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage{caption}
 \captionsetup{font=small, labelfont=bf}
 
@@ -111,6 +112,14 @@ recognition is untouched. This fix brings the 20-degree case back up to about 98
     \bottomrule
   \end{tabular}
 \end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{image.png}
+  \caption{Terminal output of \texttt{make baseline} (left) and \texttt{make improved}
+           (right).}
+  \label{fig:terminal}
+\end{figure}
 
 In short, two simple ideas fix the two problems. The lighting fix divides out the
 smooth light so it does not fool the ``brighter or darker'' test, and the rotation fix
