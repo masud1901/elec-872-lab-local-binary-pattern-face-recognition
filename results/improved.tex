@@ -1,0 +1,79 @@
+% ---------------------------------------------------------------------------
+% Improvement: robustness to lighting and rotation
+% ELEC 872 - Lab (workshop, Oct 6)
+%
+% Overleaf: create a new project and paste this file (or upload it).
+% Compiles as-is (only needs booktabs).
+% ---------------------------------------------------------------------------
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+\title{Improving LBP Face Recognition under\\ Lighting Changes and Rotation}
+\author{ELEC 872 --- Lab}
+\date{October 6, 2026}
+
+\begin{document}
+\maketitle
+
+% ---------------------------------------------------------------------------
+\section{What we changed}
+
+Two changes were made, one for each failure mode. Everything else (descriptor,
+distance, split) is unchanged, so the comparison against the baseline is fair.
+
+\paragraph{1. Illumination normalisation (lighting).}
+A one-side light is a smooth multiplicative field $L(x)$, so the observed image is
+$L\cdot(\text{face})$. Blurring the image gives approximately
+$L\cdot\text{blur}(\text{face})$; dividing the image by its own Gaussian-blurred copy
+therefore cancels $L$ while keeping the local face texture that LBP encodes. This is
+implemented in \texttt{lbpface/preprocess.py} as \texttt{normalize\_illumination} and
+applied to every image before the LBP step.
+
+\paragraph{2. Rotation-augmented gallery (rotation).}
+At enrolment, rotated copies of every gallery image are stored ($-30^\circ$ to
+$+30^\circ$ in $5^\circ$ steps). A rotated probe then matches the correctly oriented
+template of its own subject instead of failing against upright templates only. This is
+implemented in \texttt{experiments/improved.py} as \texttt{fix\_rotation}.
+
+The evaluation lives in \texttt{experiments/improved.py}; the helpers
+\texttt{light(img, s)} and \texttt{spin(img, deg)} build the hard probe images.
+
+% ---------------------------------------------------------------------------
+\section{Results}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Rank-1 recognition rate: baseline vs.\ improved.}
+  \label{tab:improved}
+  \begin{tabular}{lrr}
+    \toprule
+    Test condition & Baseline & Improved \\
+    \midrule
+    Normal        & 0.975 & 0.975 \\
+    \midrule
+    Uniform       & 0.975 & 0.975 \\
+    \midrule
+    Lighting $s = 0.2$ & 0.960 & 0.975 \\
+    Lighting $s = 0.4$ & 0.945 & 0.970 \\
+    Lighting $s = 0.6$ & 0.895 & 0.985 \\
+    Lighting $s = 0.8$ & 0.705 & 0.975 \\
+    Lighting $s = 1.0$ & 0.335 & 0.905 \\
+    \midrule
+    Rotation $5^\circ$  & 0.970 & 0.985 \\
+    Rotation $10^\circ$ & 0.925 & 0.990 \\
+    Rotation $15^\circ$ & 0.800 & 0.980 \\
+    Rotation $20^\circ$ & 0.630 & 0.980 \\
+    Rotation $25^\circ$ & 0.510 & 0.960 \\
+    Rotation $30^\circ$ & 0.340 & 0.965 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The accuracy under the change conditions rises clearly, while the normal-photo
+accuracy stays at its baseline value (0.975).
+
+\end{document}
