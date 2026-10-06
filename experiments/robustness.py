@@ -158,6 +158,19 @@ def split(fs: FaceSet, n_gallery: int = 5) -> Tuple[np.ndarray, np.ndarray]:
     return idx < n_gallery, idx >= n_gallery
 
 
+def _print_table(results: Dict[str, dict]) -> None:
+    """Plain-text table: one row per test condition, one column per method."""
+    methods = list(results)
+    conds = list(next(iter(results.values())))
+    w = max(len(c) for c in conds)
+    print()
+    print(f"{'condition':<{w}}  " + "  ".join(f"{m:>14s}" for m in methods))
+    print("-" * (w + 2 + 16 * len(methods)))
+    for c in conds:
+        print(f"{c:<{w}}  " + "  ".join(f"{results[m][c]:14.3f}" for m in methods))
+    print()
+
+
 def run(data: str = "data/ORL", seed: int = 0, methods: Optional[Dict[str, Method]] = None,
         verbose: bool = True):
     repro.seed_everything(seed)
@@ -172,8 +185,9 @@ def run(data: str = "data/ORL", seed: int = 0, methods: Optional[Dict[str, Metho
         m.fit(gal, gl)
         results[name] = condition_table(m, prb, pl)
         if verbose:
-            print(f"{name:>14s}: " + "  ".join(f"{k} {v:.3f}" for k, v in results[name].items()),
-                  flush=True)
+            print(f"  evaluated {name}", flush=True)
+    if verbose:
+        _print_table(results)
 
     config = {
         "data": "ORL", "seed": seed, "split": "images 1-5 gallery / 6-10 probe",
@@ -340,10 +354,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", default="data/ORL")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--methods", nargs="+", default=None,
+                    choices=["baseline", "lighting norm", "rotation aug", "improved"],
+                    help="which methods to evaluate (default: all four)")
     ap.add_argument("--out", default="results/robustness.json")
     ap.add_argument("--figures", default=None, metavar="DIR", help="write PNG figures to DIR")
     a = ap.parse_args(argv)
-    config, fp, results = run(a.data, a.seed)
+    methods = default_methods()
+    if a.methods:
+        methods = {k: methods[k] for k in a.methods}
+    config, fp, results = run(a.data, a.seed, methods)
     doc = repro.write_results(a.out, "robustness", config, fp, results)
     print(f"\nwrote {a.out}   digest {doc['result_digest'][:16]}...")
     if a.figures:

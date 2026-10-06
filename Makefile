@@ -1,6 +1,6 @@
 PY ?= python3
 
-.PHONY: install test orl sweep feret-demo reproduce fingerprint
+.PHONY: install test orl sweep feret-demo reproduce fingerprint robustness baseline
 
 install:
 	$(PY) -m pip install -r requirements-dev.txt
@@ -11,6 +11,14 @@ test:
 # Paper's ORL experiment (LBP^u2_{16,2}, 30x37 windows, chi^2, 100 permutations)
 orl:
 	$(PY) -m experiments.orl --data data/ORL --seed 0 --out results/orl_seed0.json
+
+# Workshop: baseline vs improved under lighting / rotation, plus figures
+robustness:
+	$(PY) -m experiments.robustness --data data/ORL --seed 0 --out results/robustness.json --figures results/figures
+
+# Workshop: baseline only, printed as a table in the terminal
+baseline:
+	$(PY) -m experiments.robustness --data data/ORL --seed 0 --methods baseline --out results/robustness_baseline.json
 
 # Table 1 / Fig. 4 analogues on ORL (a few minutes)
 sweep:
