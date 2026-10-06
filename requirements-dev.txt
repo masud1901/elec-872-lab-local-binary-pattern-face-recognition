@@ -1,3 +1,4 @@
 -r requirements.txt
 pytest==9.1.1
 scikit-image==0.26.0   # only used by the tests, as an independent reference LBP implementation
+matplotlib==3.11.2     # only used by experiments.robustness to draw the figures
